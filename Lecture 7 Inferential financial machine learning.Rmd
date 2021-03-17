@@ -20,7 +20,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.width = 8,fig.height = 4,fig.align = 'center')
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, fig.width = 8,fig.height = 4,fig.align = 'center',dpi=300)
 dl<-ls()
 rm(list=dl)
 library(rsample)   # data splitting
@@ -32,12 +32,10 @@ library(robustHD)  # Used to robustly winsorise data
 library(DataExplorer) # some nice exploratory tools for missing data
 library(skimr) # some more good descriptive tools
 library(correlationfunnel) # useful correlation visualisation
-library(fontawesome) 
 library(xaringanExtra)
 library(knitr)
 library(kableExtra)
-use_tile_view()
-use_webcam()
+library(fontawesome)
 use_panelset()
 library(tidyverse)
 
@@ -59,7 +57,7 @@ background-size: cover
 
 # .fancy[Algorithms, Inference and XAI]
 
-.large[Barry Quinn PhD CStat | Queen's Management School | `r Sys.Date()`]
+.large[Barry Quinn CStat | Queen's Management School | `r Sys.Date()`]
 
 
 ---
@@ -212,7 +210,7 @@ class: middle
 - p-values are typically computed on the estimated coefficients of a given model
 - When the p-value is less than 5%, the variable associated with that coefficient is deemed statistically significant, under the assumption that the model is correctly specified
 - Thus, p-values cannot tell us whether a variable is significant per se. 
-- glowinline[They cannot decouple the specification search from the significance search]
+- .content-box-red[They cannot decouple the specification search from the significance search]
 - In finance, where systems are so complex that researchers can only guess the correct specification, p-values are likely to lead to false conclusions
 
 ---
@@ -242,7 +240,7 @@ lm_eqn <- function(df){
 }
 
 p<-fakedata %>% ggplot(aes(x=x,y=y)) + geom_point(,color="blue") +geom_smooth(method = 'lm',se=FALSE,color='red')
-p + geom_text(x=10,y=0.25,label=lm_eqn(fakedata),parse = T)
+p + geom_text(x=20,y=0,label=lm_eqn(fakedata),parse = T,angle=18)
 ```
 ]
 
@@ -291,7 +289,7 @@ table(null_hypothesis,calls) %>% kable() %>% kableExtra::kable_material()
 ```
 - The table shows that there were 52 strategies that were called significant
 - Of those 42 are false positives. 
-- .glowinline[This evidences shows that under the rule p-value<0.05 `r round(100*42/52)` % of the discoveries are false]
+- .content-box-red[This evidences shows that under the rule p-value<0.05 `r round(100*42/52)` % of the discoveries are false]
 - The problem is, p-values evaluate a somewhat irrelevant probability tell us the $Prob(X|x>|H_0|)$
 - What we really care about is a different probability: $Prob(H_1|X>x)$
 ]
@@ -310,29 +308,27 @@ class: middle
 ## Pitfall 7: Substitution effects
 - In addition to correct model specification, p- values require (among other assumptions):
 .blockquote[
-– Uncorrelated predictors (no multicollinearity)
-– White noise residuals
-– Normally-distributed residuals
-– No outliers
+* Uncorrelated predictors (no multicollinearity)
+* White noise residuals
+* Normally-distributed residuals
+* No outliers
 ]
-• In particular, p-values are not robust to multicollinearity (linear substitution effects)
-• Because of this lack of robustness, important variables can be assigned high p-values, and be wrongly dismissed as irrelevant
+- In particular, p-values are not robust to multicollinearity (linear substitution effects)
+- Because of this lack of robustness, important variables can be assigned high p-values, and be wrongly dismissed as irrelevant
 
 ---
 class: middle
-# The problem with p-values are not just p-values
-
-- [Gelman (2016)](http://www.stat.columbia.edu/~gelman/research/published/asa_pvalues.pdf) comments that problem is much deeper than p-value misue.
-
+## The problem with p-values are not just p-values
+.acidinline[
+- [Gelman (2016)](http://www.stat.columbia.edu/~gelman/research/published/asa_pvalues.pdf) comments that problem is much deeper than p-value mis-use.
 - He argues a scientific hypothesis in a field such as psychology, economics, or medicine can correspond to any number of statistical hypotheses, and if the ASA is going to issue a statement warning about p-values, I think it necessary to emphasize that researcher degrees of freedom—the garden of forking paths—can and does occur even without people realizing what they are doing. 
-
 - A researcher will see the data and make a series of reasonable, theory-respecting choices, ending up with an apparently successful—that is, “statistically significant”—finding, without realizing that the nominal p-value obtained is meaningless.
-
-- Ultimately the problem is not with p-values but with null hypothesis significance testing, that parody of falsificationism in which straw-man null hypothesis A is rejected and this is taken as evidence in favour of preferred alternative B. 
-
+]
+.saltinline[
+- Ultimately the problem is not with p-values but with null hypothesis significance testing, that parody of **falsificationism** in which straw-man null hypothesis A is rejected and this is taken as evidence in favour of preferred alternative B. 
 - Whenever this sort of reasoning is being done, the problems discussed above will arise.
 - He concludes by saying there needs to be a paradigm shift towards a greater acceptance of uncertainty and embracing of variation.
-
+]
 ---
 class: inverse 
 # And finally
@@ -350,7 +346,7 @@ class: inverse
 
 ---
 class: inverse
-# A regression simulation `r fa('r-project')` `r fa('plus')` `r fa('python')`
+# A regression simulation `r fa('r-project',fill="white")` `r fa('plus',fill="white")` `r fa('python',fill="red")`
 .panelset[
 .panel[.panel-name[Set up on server]
 ```{r}
@@ -393,7 +389,8 @@ pvalues=ols.pvalues
 
 ]
 .panel[.panel-name[Visualise the results]
-```{r, echo=FALSE,fig.align='center',dpi=300}
+.pull-left-2[
+```{r, echo=FALSE,fig.align='center'}
 py$pvalues->pvalues
 tibble(features=names(pvalues),p_values=pvalues) %>%
   transform(features=reorder(features,p_values)) %>%
@@ -402,8 +399,11 @@ tibble(features=names(pvalues),p_values=pvalues) %>%
   geom_hline(yintercept = 0.05,colour='red') +
   coord_flip()
 ```
+]
+.pull-right-1[
 - In this example one informative feature and two redundant features are below the p-value<0.05 threshold.
 - The case study at the end will demonstrate a number of ML feature importance methods that address the caveats of p-values
+]
 ]
 ]
 
@@ -460,7 +460,7 @@ class: middle
 ---
 class: middle
 # eXplainable AI (XAI)
-.acid[
+.acidinline[
 - eXplainable AI (XAI) proposes creating a suite of ML techniques that:
 1. produce more explainable models while maintaining a high level of learning performance (e.g., prediction accuracy), and 
 2. enable humans to understand, appropriately trust, and effectively manage the emerging generation of artificially intelligent partners. 
@@ -522,9 +522,9 @@ class: middle
 
 ---
 class: middle
-## Pros and Cons of `iml` package
+### Pros and Cons of `iml` package
 .pull-left[
-### Advantages
+#### Advantages
 - ML model and package agnostic: can be used for any supervised ML model (many features are only relevant to regression and binary classification problems).
 - Variable importance: uses a permutation-based approach for variable importance, which is model agnostic, and accepts any loss function to assess importance.
 - Partial dependence plots: Fast PDP implementation and allows for ICE curves.
@@ -533,16 +533,16 @@ class: middle
 - Plots: built with ggplot2 which allows for easy customization
 ]
 .pull-right[
-### Disadvantages
+#### Disadvantages
 - Does not allow for easy comparisons across models like `DALEX`.
 - The H-statistic interaction functions do not scale well to wide data (may predictor variables).
 - Only provides permutation-based variable importance scores (which become slow as number of features increase).
-- LIME implementation has less flexibilty and features than `lime`.
+- LIME implementation has less flexibility and features than `lime`.
 - Replication requirements
 ]
 
 ---
-class:middle
+class: top 
 # Exploratory data analysis
 .panelset[
 .panel[.panel-name[Describe the data]
@@ -569,8 +569,10 @@ funnel_returns_ggplot <- dat %>%
 ```{r, echo=FALSE}
 funnel_returns_ggplot
 ```
-.blockquote[
+.acidinline[
+.small[
 The above funnel plot to visually the bivariate linear correlations between the outcome and the predictor variables. Dividend Yield (-0.08), Risk Free Rate ( -0.03) and Invest (-0.006)) are the top three correlated predictors, all negative related to stock returns by less than 0.10. 
+]
 ]
 ]
 ]
@@ -636,14 +638,15 @@ y <- setdiff(names(df_w), y)
 
 ---
 class: middle
-# Estimate machine learning models
+# Estimating machine learning models
 - We will explore how to visualize a few of the more common machine learning algorithms implemented with H_2O.ai. 
 - For brevity I train default models and **do not emphasize hyperparameter tuning**. 
 - The following produces a regularized regression, random forest, and gradient boosting machine models; all of which provide rmse ranging between 8.4-8.6 
 - Although these models have distinct mse scores, our objective is to understand how these models come to this conclusion in similar or different ways based on underlying logic and data structure.
 
 ---
-class:middle
+class: top 
+# Estimating machine learning models
 .panelset[
 .panel[.panel-name[elastic net model]
 - This is a simple regularized regression model 
@@ -712,12 +715,12 @@ xgbm <-  h2o.xgboost(
 class:middle
 ## Deep learning models
 .panelset[
-.panel[.panel-name[Deep nueral net machine]
-- Deep nueral net machine learning models have been powerful prediction engines in finance. 
+.panel[.panel-name[Deep neural net machine]
+- Deep neural net machine learning models have been powerful prediction engines in finance. 
 - With great powers comes great responsibility, and building **useful** models requires meticulous tuning
 - We used a procedure emphasises parameter tuning by first using a random hyper-parameter search.  This is less exhaustive but more efficient than a full grid search.  
 - For models with less tuning a grid search may be more appropriate. 
-- Code to do this is avaliable upon request
+- Code to do this is available upon request
 ]
 
 .panel[.panel-name[Random Hyper-Parameter Search]
@@ -800,8 +803,8 @@ class: middle
 ]
 
 ---
-class:middle
-# Feature importance
+class: top
+### Feature relevance
 
 .panelset[
 .panel[.panel-name[compute feature importance with specified loss metric]
@@ -823,9 +826,11 @@ ggsave("ml_stories.png")
 ```
 ]
 .panel[.panel-name[plot feature relevance]
+.pull-left-2[
 ```{r}
 gridExtra::grid.arrange(p1, p2, p3,p4, nrow = 2)
 ```
+]
 ]
 .panel[.panel-name[Computer-age inference] 
 - The regularised linear model and tree-based non-tuned models show dividend yield plays the prominent role in return predictions. 
@@ -881,8 +886,8 @@ For a selected predictor (x)
 
 ---
 class: middle
-## PDP plots
-
+# PDPs
+class: top
 .panelset[
 .panel[.panel-name[Case study example]
 - The following produces PDP lines (connects the averages of all observations for each response class) for the most important variable in the three tree-based models (DivYield) and the deep neural network model (Stock Issues). 
@@ -895,9 +900,11 @@ dnn.dy <- FeatureEffect$new(predictor.dnn, "StockIss",method='pdp') %>% plot() +
 
 ]
 .panel[.panel-name[Output]
+.pull-left-2[
 ```{r}
 gridExtra::grid.arrange(glm.dy, rf.dy, gbm.dy,dnn.dy+ggtitle("DNN"),nrow = 2)
 ```
+]
 ]
 .panel[.panel-name[Inference]
 - All three model show a overall monotonic decrease in the predicted returns as companies payout more dividend. 
@@ -951,6 +958,7 @@ class:middle
 # Interactions and the H-statistic
 .pull-left[
 - A wonderful feature provided by `iml` is to measure how strongly features interact with each other. 
+- .content-box-green[An interaction effect occurs when the effect of one variable on the output depends on the value of another variable]
 - To measure interaction, `iml` uses the H-statistic proposed by Friedman and Popescu (2008). 
 - The H-statistic measures how much of the variation of the predicted outcome depends on the interaction of the features. 
 - There are two approaches to measure this. 
@@ -975,9 +983,10 @@ class:middle
 ]
 
 ---
-class:middle
+class: middle
+### Interactions and the H-statistic
 .pull-left[
-## identify variables with largest interactions in each model
+- This code identifies variables have the largest H-statistics in each model
 ```{r, eval=FALSE}
 interact.glm <- Interaction$new(predictor.glm) %>% plot() + ggtitle("GLM")
 interact.rf  <- Interaction$new(predictor.rf) %>% plot() + ggtitle("RF")
@@ -987,10 +996,11 @@ interact.dnn <- Interaction$new(predictor.dnn) %>% plot() + ggtitle("dnn")
 ```
 ]
 .pull-right[
-### plot
 ```{r}
 gridExtra::grid.arrange(interact.glm, interact.rf, interact.gbm,interact.dnn,nrow = 2)
 ```
+- The output suggests that the biggest that GLM model has very little interaction effects.
+- Invest is important in both tree-based models, while cash profits has the largest overall interactive influence in the DNN model.
 ]
 
 ---
@@ -1061,8 +1071,14 @@ class: middle
 ]
 ---
 class: middle
-# Visualising two-way effects for the largest H-Statistics
+### Visualising interaction effects
+
 .panelset[
+.panel[.panel-name[Inference analysis cycle]
+- .acidline[INFERENCE]:from the previous results we identify a number of variables in each model which have the largest influence in terms of their interactions with other variables.
+- .acidline[ANALYSIS]: this inference can lead us into a deeper analysis to identify the two-way interactions with all other features of these these **highly influencing interactors**
+- .heatinline[CYCLE]: Thus the inference analysis cycle continues to a deeper level.
+]
 .panel[.panel-name[Code]
 - For each model we can investigate the largest interaction in terms of the above H-statistic.  
 - These interactions are visualised usung ALE plots, where the shading represents the variation in the interactive effect on predicted returns.
@@ -1076,37 +1092,50 @@ rf.mv.invest<-FeatureEffect$new(predictor.rf,method="ale", feature = c("MV","Inv
 dnn.cp.sector<- FeatureEffect$new(predictor.dnn,method="ale", feature = c("CashProf","Sector")) %>% plot() 
 ```
 ]
-.panel[.panel[Size versus Momentum for GLM]
-
-```{r, eval=TRUE}
+.panel[.panel-name[Size versus Momentum for GLM]
+.pull-left-2[
+```{r}
 glm.mom.mv + ggtitle('Interaction of Market Value and Momemtum Predictors')
 ```
-- In the regularised linear model,  the size of the interactions effects are infintessentially small.
 ]
-.panel[.panel[Investment and DivYield for GBM]
-
+.pull-right-1[
+- In the regularised linear model,  the size of the interactions effects are infinitesimally small.
+]
+]
+.panel[.panel-name[Investment and DivYield for GBM]
+.pull-left-2[
 ```{r, eval=TRUE}
 gbm.dy.invest
 ```
+]
+.pull-right-1[
 For the gradient boosting machine, there appears to be a strong negative interactive effect on predicted returns when companies are experiencing a positive invest between 0.2-0.4 and a dividend yield between 0.5 and 1. In contrast a strong positive interactive effect appears with companies with negative invest figures and large dividend yields (>1)
 ]
-.panel[.panel[Size and Investment in RF]
+]
+.panel[.panel-name[Size and Investment in RF]
+.pull-left-2[
 ```{r, eval=TRUE}
 rf.mv.invest
 ```
-For the random forest machine, smaller firms with a high invest rate (>0.5) the interactive effect has a non-linear impact on predicted returns moving from above 0.5 to below 0 as MV increases. ]
-.panel[.panel[Profit and Sector for DNN]
-.pull-left[
+]
+.pull-right-1[
+For the random forest machine, smaller firms with a high invest rate (>0.5) the interactive effect has a non-linear impact on predicted returns moving from above 0.5 to below 0 as MV increases. 
+]
+]
+.panel[.panel-name[Profit and Sector for DNN]
+.pull-left-2[
 ```{r, eval=TRUE}
 dnn.cp.sector
 ```
 ]
-.pull-right[
+.pull-right-1[
+.small[
 - Finally, for the deep neural network machine there appears to be some strong sector differences when cash profits are highly negative or positive.  
 - For instance, the 63 utilities firms (21), show a large positive predictive effect on returns when they have highly negative cash profits.  
 - This effect lessens as they become more profitable. 
 - There is also a sectors which have a highly positive predictive effect when they have extremely positive and extremely negative cash profits but this effect dampens as they move from being unprofitable to profitable.  
 - These firms have IDs 1 to 10 (`r sort(unique(dat$Sector))[1:10]`)
+]
 ]
 ]
 ]
@@ -1121,11 +1150,78 @@ class: middle
 
 ---
 class: middle
+# SHAP and Shapley values
+- Shapley values interpret a model’s prediction in terms of
+.blockquote[
+- attribution to the various features (sign and size)
+- features that are most important overall
+- dependence on the feature’s value
+- interactions between features
+- similarity (supervised clustering)
+]
+
+---
+class: middle
+# Theoretical contruction of Shapley values
+- Consider a supervised learning problem of with dataset $X_n, y$, a target variables with a set of N features.
+- Given an instance $x \in X$, a model $f$ forecasts a target as $f(x)$
+- Shapley values answer the following:
+* content-box-yellow[Can we attribute the departure of a prediction $f(x)$ from its average value $\bar{y}$ in terms of the observed instance $x$?]
+
+- In a linear model this is a straightforward decomposition
+
+$$f(x)-\bar{y}=\beta_1x^1+...+\beta_Nx^N$$
+- Recall that linear models are transparency and intuitive as they are a weighted sum of individual causes/effects
+- We would like to do a similar *local* decomposition for an (nonlinear) ML model
+
+---
+class: middle
+# Shapley values and coalitional game theory
+- Shapley values answer this attribution problem through game theory
+- Features are treated as players in a game
+- The players form coalitions in order to achieve
+an outcome
+- We wish to find a “fair” attribution of each individual player’s contribution
+
+---
+class: middle
+## Shapley values and coalitional game theory
+.small[
+.blockquote[
+- First, we consider the $2^N$ possible coalitions (interactions) between the players (features), where
+* some players (features) may not participate (remain at their average value), and
+* some players (features) may participate (depart from their average value)
+]
+.blockquote[
+- Second, we use the coalitions (interactions) table to compute the marginal contribution of each player (feature) conditional to the other players
+- The marginal impact of changing $x^i$ after changing $x^j$ may differ from the marginal impact of changing $x^j$ after changing
+$x^i$
+– Accordingly, we must account for all possible $N!$ sequences of conditional effects
+]
+.blockquote[
+- Third, the Shapley value of a player (feature) is the average conditional marginal contribution of that player across all the possible $N!$ ways of conditioning $f(.)$.
+]
+]
+
+---
+class: inverse
+# Statistical Properties of Shapley Values
+- Shapley values $(\{\phi_i\}_{i-1,...N})$provide the only fair attribution, that is attributions that follow the properties
+
+1. Efficiency: $f(x)-\bar{y}=\sum_{i=1}^N \phi$
+2. Symmetry: $\phi_i=\phi_j$ that is $x^i$ and $x^j$ contribute equally to all possible coalitions
+3. Missingness: if $x^i$ does not change $f(x)$ regardless of the coalition, then $\phi_i=0$
+4. Additivity: A function with combined outputs has as Shapley values the sum of the constituent ones 
+5. Consistency
+
+---
+class: middle
 # SHAP algorithm
 - The idea behind Shapley values is to assess every combination of predictors to determine each predictors impact. 
 - Focusing on feature $x_j$, the approach will test the accuracy of every combination of features not including $x_j$ and then test how adding $x_j$ to each combination improves the accuracy.
 - Unfortunately, computing Shapley values is very computationally expensive. 
 - Consequently, iml implements an approximate Shapley estimation algorithm that follows the following steps:
+
 
 .blockquote[
 - ob = single observation of interest
@@ -1160,27 +1256,37 @@ class: middle
 # Case study: Shapley values
 .panelset[
 .panel[.panel-name[GBM]
+.pull-left-2[
 ```{r, eval=TRUE}
 shapley.gbm
 ```
 ]
+]
 .panel[.panel-name[GLM]
+.pull-left-2[
 ```{r, eval=TRUE}
 shapley.glm
 ```
 ]
+]
 .panel[.panel-name[RF]
+.pull-left-2[
 ```{r, eval=TRUE}
 shapley.rf
 ```
 ]
+]
 .panel[.panel-name[DNN]
+.pull-left-2[
 ```{r, eval=TRUE}
 shapley.dnn
 ```
 ]
-.panel[.panel-name[Interpretation]
-What follows plots show impact of each predictor on the prediction of the first observation in the validation data set. The tree-based models shows a consistent positive experience for Invest and BM, while all models shows a clear negative impact of DivYield.
+]
+.panel[.panel-name[Inference]
+.acid[
+The plots show impact of each predictor on the prediction of the first observation in the validation data set. The tree-based models shows a consistent positive experience for Invest and BM, while all models shows a clear negative impact of DivYield.
+]
 ]
 ]
 
